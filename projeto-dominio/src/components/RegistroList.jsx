@@ -1,25 +1,21 @@
 import React, { useState } from 'react';
 
-// URL base, o domínio será adicionado ao final
+// URL base da API
 const API_BASE_URL = 'https://brasilapi.com.br/api/registro-br/v1'; 
 
 function RegistroList() {
-  // 1. HOOKS DE ESTADO
-  // Armazena a entrada do usuário no campo de texto
+  // HOOKS DE ESTADO
   const [inputDomain, setInputDomain] = useState(''); 
-  // Armazena o resultado da busca (o objeto retornado pela API)
   const [result, setResult] = useState(null); 
-  // Status da requisição
   const [loading, setLoading] = useState(false); 
   const [error, setError] = useState(null);
 
-  // Função chamada quando o usuário clica em buscar
+  // Função chamada ao enviar o formulário
   const handleSearch = async (e) => {
-    e.preventDefault(); // Impede o recarregamento padrão do formulário
+    e.preventDefault(); 
     
-    // 1. Validação simples
     if (!inputDomain.trim()) {
-      setError("Por favor, digite um nome de domínio para buscar.");
+      setError("Por favor, digite um nome de domínio completo (ex: site.com.br).");
       setResult(null);
       return;
     }
@@ -29,17 +25,24 @@ function RegistroList() {
       setError(null);
       setResult(null);
       
+      // 1. Prepara e Limpa o domínio
+      const preparedDomain = inputDomain.toLowerCase().trim();
+      
+      // 2. CORREÇÃO DE URL: Usa encodeURIComponent para garantir que o '.' seja tratado
+      // corretamente no caminho da URL, resolvendo o problema de "Não Encontrado" (404).
+      const encodedDomain = encodeURIComponent(preparedDomain); 
+
       // Monta o endpoint dinâmico
-      const endpoint = `${API_BASE_URL}/${inputDomain.toLowerCase().trim()}`;
+      const endpoint = `${API_BASE_URL}/${encodedDomain}`;
       
       const response = await fetch(endpoint);
       
-      // O endpoint de domínio específico pode retornar 404
+      // Verifica o status de resposta
       if (response.status === 404) {
           throw new Error(`Domínio '${inputDomain}' não encontrado ou inválido.`);
       }
       if (!response.ok) {
-        throw new Error(`Erro ao buscar domínio. Código: ${response.status}`);
+        throw new Error(`Erro ao buscar domínio. Código HTTP: ${response.status}`);
       }
       
       const data = await response.json();
@@ -52,48 +55,47 @@ function RegistroList() {
     }
   };
 
-  // 2. RENDERIZAÇÃO
+  // RENDERIZAÇÃO
   return (
-    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
+    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto', fontFamily: 'Arial, sans-serif' }}>
       <h2>🔍 Buscar Status de Domínio .BR</h2>
       
-      {/* O Formulário de Busca */}
+      {/* Formulário de Busca */}
       <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
         <input
           type="text"
           value={inputDomain}
           onChange={(e) => setInputDomain(e.target.value)}
-          placeholder="Ex: google.com.br"
-          style={{ padding: '10px', flexGrow: 1, border: '1px solid #ccc' }}
+          placeholder="Ex: seuprojeto.com.br"
+          style={{ padding: '10px', flexGrow: 1, border: '1px solid #ccc', borderRadius: '4px' }}
+          disabled={loading}
         />
-        <button type="submit" disabled={loading} style={{ padding: '10px', backgroundColor: '#007bff', color: 'white', border: 'none', cursor: 'pointer' }}>
+        <button type="submit" disabled={loading} style={{ padding: '10px 15px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
           {loading ? 'Buscando...' : 'Buscar'}
         </button>
       </form>
       
-      {/* 3. EXIBIÇÃO DE STATUS E RESULTADOS */}
+      {/* EXIBIÇÃO DE STATUS E RESULTADOS */}
       
-      {error && <p style={{ color: 'red' }}>⚠️ **Erro:** {error}</p>}
+      {error && <p style={{ color: 'white', backgroundColor: '#dc3545', padding: '10px', borderRadius: '4px' }}>⚠️ **Erro:** {error}</p>}
       
       {loading && <p>Buscando informações do domínio...</p>}
       
       {result && !loading && (
-        <div style={{ border: '2px solid #28a745', padding: '15px', borderRadius: '5px', backgroundColor: '#e9f7ef' }}>
+        <div style={{ border: `2px solid ${result.status === 'DISPONIVEL' ? '#28a745' : '#ffc107'}`, padding: '15px', borderRadius: '5px', backgroundColor: '#f8f9fa' }}>
           <h3>✅ Status do Domínio: `{result.domain}`</h3>
           <p>
-            **Status:** **`{result.status}`** {/* O status 'DISPONIVEL' é retornado se o domínio não estiver registrado */}
-            {result.status === 'DISPONIVEL' && <span style={{ color: 'green', fontWeight: 'bold' }}> (Livre para registro!)</span>}
+            **Status:** **`{result.status}`** {result.status === 'DISPONIVEL' && <span style={{ color: 'green', fontWeight: 'bold' }}> (Livre para registro!)</span>}
             {result.status === 'REGISTRADO' && <span style={{ color: 'red', fontWeight: 'bold' }}> (Ocupado!)</span>}
           </p>
           <p>
-            **Data de Registro:** {result.pubdate ? new Date(result.pubdate).toLocaleDateString() : 'N/A'}
+            **Data de Registro:** {result.pubdate ? new Date(result.pubdate).toLocaleDateString() : 'Não aplicável'}
           </p>
-          {/* Você pode exibir mais informações se desejar, como expiryDate, hosts, etc. */}
         </div>
       )}
       
       {!result && !error && !loading && (
-          <p>Digite um domínio (.br) acima para consultar seu status.</p>
+          <p>Digite um domínio (.br) acima e clique em 'Buscar' para consultar seu status.</p>
       )}
 
     </div>
