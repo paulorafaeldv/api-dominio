@@ -74,13 +74,6 @@ function RegistroList() {
             {result.status === "DISPONIVEL" && " (Livre para registro!)"}
             {result.status === "REGISTRADO" && " (Ocupado!)"}
           </p>
-
-          <p>
-            <strong>Data do Registro: </strong>
-            {result.pubdate
-              ? new Date(result.pubdate).toLocaleDateString()
-              : "Não aplicável"}
-          </p>
         </div>
       )}
 
