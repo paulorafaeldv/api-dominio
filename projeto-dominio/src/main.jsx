@@ -6,7 +6,6 @@ import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    {/* 2. Garanta que o componente App esteja sendo renderizado aqui */}
     <App /> 
   </React.StrictMode>,
 );

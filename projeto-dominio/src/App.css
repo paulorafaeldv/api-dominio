@@ -5,10 +5,16 @@
   padding: 30px;
   background: #121212;
   border-radius: 12px;
-  box-shadow: 0 0 20px #00000055;
+  box-shadow: 0 0 20px #b8383855;
   color: #eaeaea;
   font-family: 'Segoe UI', Tahoma, sans-serif;
   text-align: center;
+}
+
+.pagina-container {
+  text-align: center;      /* CENTRALIZA TODOS OS TEXTOS */
+  width: 100%;
+  margin-top: 30px;
 }
 
 /* Título */
