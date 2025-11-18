@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 
-const API_BASE_URL = "https://brasilapi.com.br/api/registrobr/v1";
+// 1️⃣ Primeiro declare a constante — sem nada acima que use ela
+const API_BASE_URL = import.meta.env.VITE_CHAMADA_API;
+
+// 2️⃣ Agora sim você pode fazer debugs
+console.log("URL DA API:", API_BASE_URL);
 
 function RegistroList() {
   const [inputDomain, setInputDomain] = useState("");
@@ -24,7 +28,9 @@ function RegistroList() {
 
       const preparedDomain = inputDomain.toLowerCase().trim();
       const endpoint = `${API_BASE_URL}/${preparedDomain}`;
-      
+
+      console.log("ENDPOINT:", endpoint); // debug
+
       const response = await fetch(endpoint);
 
       if (response.status === 404) {
